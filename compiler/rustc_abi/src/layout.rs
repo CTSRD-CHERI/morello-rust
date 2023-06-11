@@ -41,7 +41,7 @@ pub trait LayoutCalculator {
             align,
             data_size: None,
             memory_size,
-            has_repr_align: false,
+            repr_align: None,
         }
     }
 
@@ -125,7 +125,7 @@ pub trait LayoutCalculator {
             align: dl.i8_align,
             data_size: Some(Size::ZERO),
             memory_size: Size::ZERO,
-            has_repr_align: false,
+            repr_align: None,
         }
     }
 
@@ -446,7 +446,7 @@ pub trait LayoutCalculator {
                 data_size: self.data_size_for_abi(&abi, memory_size),
                 memory_size,
                 align,
-                has_repr_align: repr.align.is_some(),
+                repr_align: repr.align,
             };
 
             Some(TmpLayout { layout, variants: variant_layouts })
@@ -717,7 +717,7 @@ pub trait LayoutCalculator {
             align,
             data_size: self.data_size_for_abi(&abi, memory_size),
             memory_size,
-            has_repr_align: repr.align.is_some(),
+            repr_align: repr.align,
         };
 
         let tagged_layout = TmpLayout { layout: tagged_layout, variants: layout_variants };
@@ -842,7 +842,7 @@ pub trait LayoutCalculator {
             align,
             data_size: self.data_size_for_abi(&abi, memory_size),
             memory_size,
-            has_repr_align: repr.align.is_some(),
+            repr_align: repr.align,
         })
     }
 }
@@ -1141,9 +1141,9 @@ fn univariant(
         abi = Abi::Uninhabited;
     }
 
-    let has_repr_align = repr.align.is_some()
-        || repr.transparent()
-            && layout_of_single_non_zst_field.map_or(false, |l| l.has_repr_align());
+    let repr_align = repr.align.or_else(|| {
+        if repr.transparent() { layout_of_single_non_zst_field?.repr_align() } else { None }
+    });
 
     Some(LayoutS {
         variants: Variants::Single { index: FIRST_VARIANT },
@@ -1153,7 +1153,7 @@ fn univariant(
         align,
         data_size: this.data_size_for_abi(&abi, memory_size),
         memory_size,
-        has_repr_align,
+        repr_align,
     })
 }
 

@@ -64,9 +64,11 @@ error: layout_of(A) = Layout {
                        variants: Single {
                            index: 0,
                        },
+                       repr_align: None,
                    },
                ],
            },
+           repr_align: None,
        }
   --> $DIR/thumb-enum.rs:16:1
    |
@@ -139,9 +141,11 @@ error: layout_of(B) = Layout {
                        variants: Single {
                            index: 0,
                        },
+                       repr_align: None,
                    },
                ],
            },
+           repr_align: None,
        }
   --> $DIR/thumb-enum.rs:20:1
    |
@@ -214,9 +218,11 @@ error: layout_of(C) = Layout {
                        variants: Single {
                            index: 0,
                        },
+                       repr_align: None,
                    },
                ],
            },
+           repr_align: None,
        }
   --> $DIR/thumb-enum.rs:24:1
    |
@@ -289,9 +295,11 @@ error: layout_of(P) = Layout {
                        variants: Single {
                            index: 0,
                        },
+                       repr_align: None,
                    },
                ],
            },
+           repr_align: None,
        }
   --> $DIR/thumb-enum.rs:28:1
    |
@@ -364,9 +372,11 @@ error: layout_of(T) = Layout {
                        variants: Single {
                            index: 0,
                        },
+                       repr_align: None,
                    },
                ],
            },
+           repr_align: None,
        }
   --> $DIR/thumb-enum.rs:34:1
    |

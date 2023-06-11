@@ -83,6 +83,7 @@ error: layout_of(MissingPayloadField) = Layout {
                        variants: Single {
                            index: 0,
                        },
+                       repr_align: None,
                    },
                    Layout {
                        data_size: None,
@@ -103,9 +104,11 @@ error: layout_of(MissingPayloadField) = Layout {
                        variants: Single {
                            index: 1,
                        },
+                       repr_align: None,
                    },
                ],
            },
+           repr_align: None,
        }
   --> $DIR/issue-96158-scalarpair-payload-might-be-uninit.rs:16:1
    |
@@ -199,6 +202,7 @@ error: layout_of(CommonPayloadField) = Layout {
                        variants: Single {
                            index: 0,
                        },
+                       repr_align: None,
                    },
                    Layout {
                        data_size: None,
@@ -235,9 +239,11 @@ error: layout_of(CommonPayloadField) = Layout {
                        variants: Single {
                            index: 1,
                        },
+                       repr_align: None,
                    },
                ],
            },
+           repr_align: None,
        }
   --> $DIR/issue-96158-scalarpair-payload-might-be-uninit.rs:25:1
    |
@@ -329,6 +335,7 @@ error: layout_of(CommonPayloadFieldIsMaybeUninit) = Layout {
                        variants: Single {
                            index: 0,
                        },
+                       repr_align: None,
                    },
                    Layout {
                        data_size: None,
@@ -364,9 +371,11 @@ error: layout_of(CommonPayloadFieldIsMaybeUninit) = Layout {
                        variants: Single {
                            index: 1,
                        },
+                       repr_align: None,
                    },
                ],
            },
+           repr_align: None,
        }
   --> $DIR/issue-96158-scalarpair-payload-might-be-uninit.rs:33:1
    |
@@ -474,6 +483,7 @@ error: layout_of(NicheFirst) = Layout {
                        variants: Single {
                            index: 0,
                        },
+                       repr_align: None,
                    },
                    Layout {
                        data_size: Some(
@@ -496,6 +506,7 @@ error: layout_of(NicheFirst) = Layout {
                        variants: Single {
                            index: 1,
                        },
+                       repr_align: None,
                    },
                    Layout {
                        data_size: Some(
@@ -518,9 +529,11 @@ error: layout_of(NicheFirst) = Layout {
                        variants: Single {
                            index: 2,
                        },
+                       repr_align: None,
                    },
                ],
            },
+           repr_align: None,
        }
   --> $DIR/issue-96158-scalarpair-payload-might-be-uninit.rs:41:1
    |
@@ -628,6 +641,7 @@ error: layout_of(NicheSecond) = Layout {
                        variants: Single {
                            index: 0,
                        },
+                       repr_align: None,
                    },
                    Layout {
                        data_size: Some(
@@ -650,6 +664,7 @@ error: layout_of(NicheSecond) = Layout {
                        variants: Single {
                            index: 1,
                        },
+                       repr_align: None,
                    },
                    Layout {
                        data_size: Some(
@@ -672,9 +687,11 @@ error: layout_of(NicheSecond) = Layout {
                        variants: Single {
                            index: 2,
                        },
+                       repr_align: None,
                    },
                ],
            },
+           repr_align: None,
        }
   --> $DIR/issue-96158-scalarpair-payload-might-be-uninit.rs:50:1
    |
