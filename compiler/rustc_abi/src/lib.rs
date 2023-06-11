@@ -1632,6 +1632,11 @@ pub struct LayoutS {
     pub data_size: Option<Size>,
     /// Total size of the layout.
     pub memory_size: Size,
+
+    /// True if the alignment was explicitly requested with `repr(align)`.
+    /// Only used on i686-windows, where the argument passing ABI is different when alignment is
+    /// requested, even if the requested alignment is equal to or less than the natural alignment.
+    pub has_repr_align: bool,
 }
 
 impl LayoutS {
@@ -1648,6 +1653,7 @@ impl LayoutS {
             data_size: Some(data_size),
             memory_size,
             align,
+            has_repr_align: false,
         }
     }
 }
@@ -1657,7 +1663,7 @@ impl fmt::Debug for LayoutS {
         // This is how `Layout` used to print before it become
         // `Interned<LayoutS>`. We print it like this to avoid having to update
         // expected output in a lot of tests.
-        let LayoutS { data_size, memory_size, align, abi, fields, largest_niche, variants } = self;
+        let LayoutS { data_size, memory_size, align, abi, fields, largest_niche, variants, has_repr_align } = self;
         f.debug_struct("Layout")
             .field("data_size", data_size)
             .field("memory_size", memory_size)
@@ -1666,6 +1672,7 @@ impl fmt::Debug for LayoutS {
             .field("fields", fields)
             .field("largest_niche", largest_niche)
             .field("variants", variants)
+            .field("has_repr_align", has_repr_align)
             .finish()
     }
 }
@@ -1708,6 +1715,10 @@ impl<'a> Layout<'a> {
 
     pub fn memory_size(self) -> Size {
         self.0.0.memory_size
+    }
+
+    pub fn has_repr_align(self) -> bool {
+        self.0.0.has_repr_align
     }
 
     /// Whether the layout is from a type that implements [`std::marker::PointerLike`].

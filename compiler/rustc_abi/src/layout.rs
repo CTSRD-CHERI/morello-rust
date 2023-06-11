@@ -41,6 +41,7 @@ pub trait LayoutCalculator {
             align,
             data_size: None,
             memory_size,
+            has_repr_align: false,
         }
     }
 
@@ -124,6 +125,7 @@ pub trait LayoutCalculator {
             align: dl.i8_align,
             data_size: Some(Size::ZERO),
             memory_size: Size::ZERO,
+            has_repr_align: false,
         }
     }
 
@@ -444,6 +446,7 @@ pub trait LayoutCalculator {
                 data_size: self.data_size_for_abi(&abi, memory_size),
                 memory_size,
                 align,
+                has_repr_align: repr.align.is_some(),
             };
 
             Some(TmpLayout { layout, variants: variant_layouts })
@@ -714,6 +717,7 @@ pub trait LayoutCalculator {
             align,
             data_size: self.data_size_for_abi(&abi, memory_size),
             memory_size,
+            has_repr_align: repr.align.is_some(),
         };
 
         let tagged_layout = TmpLayout { layout: tagged_layout, variants: layout_variants };
@@ -838,6 +842,7 @@ pub trait LayoutCalculator {
             align,
             data_size: self.data_size_for_abi(&abi, memory_size),
             memory_size,
+            has_repr_align: repr.align.is_some(),
         })
     }
 }
@@ -1066,6 +1071,7 @@ fn univariant(
     };
     let has_metadata = fields.iter().any(|field| field.abi().has_metadata(dl));
     let memory_size = min_size.align_to(align.abi);
+    let mut layout_of_single_non_zst_field = None;
     let mut abi = Abi::Aggregate { metadata: has_metadata, sized };
     // Unpack newtype ABIs and find scalar pairs.
     if sized && memory_size.bytes() > 0 {
@@ -1075,6 +1081,8 @@ fn univariant(
         match (non_zst_fields.next(), non_zst_fields.next(), non_zst_fields.next()) {
             // We have exactly one non-ZST field.
             (Some((i, field)), None, None) => {
+                layout_of_single_non_zst_field = Some(field);
+
                 // Field fills the struct and it has a scalar or scalar pair ABI.
                 if offsets[i].bytes() == 0 && align.abi == field.align().abi && memory_size == field.memory_size()
                 {
@@ -1132,6 +1140,11 @@ fn univariant(
     if fields.iter().any(|f| f.abi().is_uninhabited()) {
         abi = Abi::Uninhabited;
     }
+
+    let has_repr_align = repr.align.is_some()
+        || repr.transparent()
+            && layout_of_single_non_zst_field.map_or(false, |l| l.has_repr_align());
+
     Some(LayoutS {
         variants: Variants::Single { index: FIRST_VARIANT },
         fields: FieldsShape::Arbitrary { offsets, memory_index },
@@ -1140,6 +1153,7 @@ fn univariant(
         align,
         data_size: this.data_size_for_abi(&abi, memory_size),
         memory_size,
+        has_repr_align,
     })
 }
 
