@@ -757,6 +757,7 @@ where
                     data_size: Some(Size::ZERO),
                     memory_size: Size::ZERO,
                     repr_align: None,
+                    unadjusted_abi_align: tcx.data_layout.i8_align.abi,
                 })
             }
 

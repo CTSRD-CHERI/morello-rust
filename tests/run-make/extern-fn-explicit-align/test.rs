@@ -18,6 +18,13 @@ pub struct BoolAndU32 {
     pub b: u32,
 }
 
+#[derive(Copy, Clone)]
+#[repr(C)]
+#[repr(packed)]
+pub struct Packed {
+    pub a: u128
+}
+
 #[link(name = "test", kind = "static")]
 extern "C" {
     fn many_args(
@@ -32,15 +39,19 @@ extern "C" {
         i: *mut (),
         j: *mut (),
         k: *mut (),
-        l: *mut (),
-        m: *const i8,
+        l: LowerAlign,
+        m: *mut (),
+        n: Packed,
+        o: *const c_char,
     ) -> i32;
 }
 
 fn main() {
     let two_u64s = TwoU64s { a: 1, b: 2 };
-    let bool_and_u32 = BoolAndU32 { a: true, b: 3 };
-    let string = CString::new("Hello world").unwrap();
+    let wrapped = WrappedU64s { a: TwoU64s { a: 3, b: 4 } };
+    let lower = LowerAlign { a: 5, b: 6 };
+    let packed = Packed { a: 7 };
+    let string = STRING;
     unsafe {
         many_args(
             null_mut(),
@@ -53,8 +64,9 @@ fn main() {
             two_u64s,
             null_mut(),
             null_mut(),
+            lower,
             null_mut(),
-            null_mut(),
+            packed,
             string.as_ptr(),
         );
     }

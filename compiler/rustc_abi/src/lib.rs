@@ -1637,6 +1637,11 @@ pub struct LayoutS {
     /// Only used on i686-windows, where the argument passing ABI is different when alignment is
     /// requested, even if the requested alignment is equal to the natural alignment.
     pub repr_align: Option<Align>,
+
+    /// The alignment the type would have, ignoring any `repr(align)` but including `repr(packed)`.
+    /// Only used on aarch64-linux, where the argument passing ABI ignores the requested alignment
+    /// in some cases.
+    pub unadjusted_abi_align: Align,
 }
 
 impl LayoutS {
@@ -1654,6 +1659,7 @@ impl LayoutS {
             memory_size,
             align,
             repr_align: None,
+            unadjusted_abi_align: align.abi,
         }
     }
 }
@@ -1663,7 +1669,17 @@ impl fmt::Debug for LayoutS {
         // This is how `Layout` used to print before it become
         // `Interned<LayoutS>`. We print it like this to avoid having to update
         // expected output in a lot of tests.
-        let LayoutS { data_size, memory_size, align, abi, fields, largest_niche, variants, repr_align } = self;
+        let LayoutS {
+            data_size,
+            memory_size,
+            align,
+            abi,
+            fields,
+            largest_niche,
+            variants,
+            repr_align,
+            unadjusted_abi_align,
+        } = self;
         f.debug_struct("Layout")
             .field("data_size", data_size)
             .field("memory_size", memory_size)
@@ -1673,6 +1689,7 @@ impl fmt::Debug for LayoutS {
             .field("largest_niche", largest_niche)
             .field("variants", variants)
             .field("repr_align", repr_align)
+            .field("unadjusted_abi_align", unadjusted_abi_align)
             .finish()
     }
 }
@@ -1719,6 +1736,10 @@ impl<'a> Layout<'a> {
 
     pub fn repr_align(self) -> Option<Align> {
         self.0.0.repr_align
+    }
+
+    pub fn unadjusted_abi_align(self) -> Align {
+        self.0.0.unadjusted_abi_align
     }
 
     /// Whether the layout is from a type that implements [`std::marker::PointerLike`].
