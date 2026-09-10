@@ -223,7 +223,7 @@ cfg_if::cfg_if! {
                         {
                             let is_valid: u64;
                             // TODO(seharris): using `{:x}` for the second argument doesn't make sense, but current version of LLVM doesn't support `{:C}` and we have to use *something*.
-                            crate::arch::asm!("gctag {:x}, {:x}", out(reg) is_valid, in(reg) lpad);
+                            crate::arch::asm!("gctag {:x}, {:C}", out(reg) is_valid, in(reg) lpad);
                             assert!(is_valid == 1);
                         }
                         uw::_Unwind_SetIP(context, lpad);
