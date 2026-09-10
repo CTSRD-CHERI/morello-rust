@@ -794,7 +794,7 @@ impl core::ops::Add<u32> for EnumValue {
 pub fn read_explicit_enum_value(tcx: TyCtxt<'_>, id: DefId) -> Option<EnumValue> {
     if let Ok(ConstValue::Scalar(Scalar::Int(value))) = tcx.const_eval_poly(id) {
         match tcx.type_of(id).subst_identity().kind() {
-            ty::Int(_) => Some(EnumValue::Signed(match value.size().bytes() {
+            ty::Int(_) => Some(EnumValue::Signed(match value.memory_size().bytes() {
                 1 => i128::from(value.assert_bits(Size::from_bytes(1)) as u8 as i8),
                 2 => i128::from(value.assert_bits(Size::from_bytes(2)) as u16 as i16),
                 4 => i128::from(value.assert_bits(Size::from_bytes(4)) as u32 as i32),
@@ -802,7 +802,7 @@ pub fn read_explicit_enum_value(tcx: TyCtxt<'_>, id: DefId) -> Option<EnumValue>
                 16 => value.assert_bits(Size::from_bytes(16)) as i128,
                 _ => return None,
             })),
-            ty::Uint(_) => Some(EnumValue::Unsigned(match value.size().bytes() {
+            ty::Uint(_) => Some(EnumValue::Unsigned(match value.memory_size().bytes() {
                 1 => value.assert_bits(Size::from_bytes(1)),
                 2 => value.assert_bits(Size::from_bytes(2)),
                 4 => value.assert_bits(Size::from_bytes(4)),
@@ -971,7 +971,7 @@ pub fn approx_ty_size<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> u64 {
     if !is_normalizable(cx, cx.param_env, ty) {
         return 0;
     }
-    match (cx.layout_of(ty).map(|layout| layout.size.bytes()), ty.kind()) {
+    match (cx.layout_of(ty).map(|layout| layout.memory_size.bytes()), ty.kind()) {
         (Ok(size), _) => size,
         (Err(_), ty::Tuple(list)) => list.iter().map(|t| approx_ty_size(cx, t)).sum(),
         (Err(_), ty::Array(t, n)) => {

@@ -663,14 +663,14 @@ pub fn miri_to_const<'tcx>(lcx: &LateContext<'tcx>, result: mir::ConstantKind<'t
         mir::ConstantKind::Val(ConstValue::Scalar(Scalar::Int(int)), _) => match result.ty().kind() {
             ty::Adt(adt_def, _) if adt_def.is_struct() => Some(Constant::Adt(result)),
             ty::Bool => Some(Constant::Bool(int == ScalarInt::TRUE)),
-            ty::Uint(_) | ty::Int(_) => Some(Constant::Int(int.assert_bits(int.size()))),
+            ty::Uint(_) | ty::Int(_) => Some(Constant::Int(int.assert_bits(int.memory_size()))),
             ty::Float(FloatTy::F32) => Some(Constant::F32(f32::from_bits(
                 int.try_into().expect("invalid f32 bit representation"),
             ))),
             ty::Float(FloatTy::F64) => Some(Constant::F64(f64::from_bits(
                 int.try_into().expect("invalid f64 bit representation"),
             ))),
-            ty::RawPtr(_) => Some(Constant::RawPtr(int.assert_bits(int.size()))),
+            ty::RawPtr(_) => Some(Constant::RawPtr(int.assert_bits(int.memory_size()))),
             _ => None,
         },
         mir::ConstantKind::Val(ConstValue::Slice { data, start, end }, _) => match result.ty().kind() {
