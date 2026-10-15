@@ -1749,6 +1749,8 @@ pub struct TargetOptions {
     /// Whether the target toolchain is like AIX's. Linker options on AIX are special and it uses
     /// XCOFF as binary format. Defaults to false.
     pub is_like_aix: bool,
+    /// Whether the target toolchain is like CheriBSD's.
+    pub is_like_cheribsd: bool,
     /// Whether the target toolchain is like macOS's. Only useful for compiling against iOS/macOS,
     /// in particular running dsymutil and some other stuff like `-dead_strip`. Defaults to false.
     /// Also indiates whether to use Apple-specific ABI changes, such as extending function
@@ -2121,6 +2123,7 @@ impl Default for TargetOptions {
             families: cvs![],
             abi_return_struct_as_int: false,
             is_like_aix: false,
+            is_like_cheribsd: false,
             is_like_osx: false,
             is_like_solaris: false,
             is_like_windows: false,
@@ -2798,6 +2801,7 @@ impl Target {
         key!(families, TargetFamilies);
         key!(abi_return_struct_as_int, bool);
         key!(is_like_aix, bool);
+        key!(is_like_cheribsd, bool);
         key!(is_like_osx, bool);
         key!(is_like_solaris, bool);
         key!(is_like_windows, bool);
@@ -3056,6 +3060,7 @@ impl ToJson for Target {
         target_option_val!(families, "target-family");
         target_option_val!(abi_return_struct_as_int);
         target_option_val!(is_like_aix);
+        target_option_val!(is_like_cheribsd);
         target_option_val!(is_like_osx);
         target_option_val!(is_like_solaris);
         target_option_val!(is_like_windows);

@@ -8,6 +8,7 @@ use crate::abi::{HasDataLayout, TyAbiInterface};
 #[derive(Copy, Clone, PartialEq)]
 pub enum AbiKind {
     AAPCS,
+    AAPCSMorello,
     DarwinPCS,
     Win64,
 }
