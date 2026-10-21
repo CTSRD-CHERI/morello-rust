@@ -683,7 +683,7 @@ impl<'a, Ty> FnAbi<'a, Ty> {
                     aarch64::AbiKind::DarwinPCS
                 } else if cx.target_spec().is_like_windows {
                     aarch64::AbiKind::Win64
-                } else if cx.target_spec().is_like_cheribsd {
+                } else if cx.target_spec().abi == "purecap") {
                     aarch64::AbiKind::AAPCSMorello
                 } else {
                     aarch64::AbiKind::AAPCS

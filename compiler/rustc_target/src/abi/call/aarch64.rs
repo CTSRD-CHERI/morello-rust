@@ -1,5 +1,7 @@
+use rustc_abi::{Abi, Primitive};
+
 use crate::abi::call::{ArgAbi, FnAbi, Reg, RegKind, Uniform};
-use crate::abi::{HasDataLayout, TyAbiInterface};
+use crate::abi::{HasDataLayout, TyAbiInterface, TyAndLayout};
 
 /// Indicates the variant of the AArch64 ABI we are compiling for.
 /// Used to accommodate Apple and Microsoft's deviations from the usual AAPCS ABI.
@@ -11,6 +13,29 @@ pub enum AbiKind {
     AAPCSMorello,
     DarwinPCS,
     Win64,
+}
+
+/// Recursively checks if a type is a capability or a structural composite containing one.
+fn is_or_contains_capabilities<'a, Ty, C>(cx: &C, layout: TyAndLayout<'a, Ty>) -> bool
+where
+    Ty: TyAbiInterface<'a, C> + Copy,
+    C: HasDataLayout,
+{
+    if matches!(
+        layout.abi,
+        Abi::Scalar(scalar) if matches!(scalar.primitive(), Primitive::Pointer(_))
+    ) {
+        return true;
+    }
+    // Check if the layout of the arg is a Composite Type containing capabilities
+    if layout.is_aggregate() {
+        for i in 0..layout.fields.count() {
+            if is_or_contains_capabilities(cx, layout.field(cx, i)) {
+                return true;
+            }
+        }
+    }
+    false
 }
 
 fn is_homogeneous_aggregate<'a, Ty, C>(cx: &C, arg: &mut ArgAbi<'a, Ty>) -> Option<Uniform>
@@ -91,6 +116,19 @@ where
     } else {
         arg.layout.align.abi
     };
+    // aapcs-morello
+    // https://github.com/ARM-software/abi-aa/blob/main/aapcs64-morello/aapcs64-morello.rst
+    if kind == AbiKind::AAPCSMorello {
+        // aapcs-morello C.10
+        if is_or_contains_capabilities(cx, arg.layout) {
+            // # aapcs-morello B.4
+            if size.bits() <= 256 {
+                assert!(align.bits() == 128);
+                //arg.cast_to(Uniform { unit: Reg::i64(), total: size });
+                return;
+            }
+        }
+    }
     if size.bits() <= 128 {
         if align.bits() == 128 {
             arg.cast_to(Uniform { unit: Reg::i128(), total: size });
